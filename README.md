@@ -4,8 +4,6 @@ This is a custom GitHub Action for use in your workflows that will install the [
 
 ## Features
 
-- ✅ **Linux-focused**: Runs on Ubuntu/Linux runners (WebAssembly output is cross-platform)
-- ✅ Supports multiple architectures (x86_64, arm64)
 - ✅ Downloads and installs the specified version of WASI SDK
 - ✅ Optionally adds WASI SDK to PATH
 - ✅ Sets up convenient environment variables
@@ -14,12 +12,15 @@ This is a custom GitHub Action for use in your workflows that will install the [
 
 ## Why Linux Only?
 
+Use `runs-on: ubuntu-latest` (which is the default) for your workflows that need WASI SDK.
+
 WASI SDK compiles C/C++ code to WebAssembly, which is completely cross-platform. There's no need to install WASI SDK on multiple platforms - you can compile your WebAssembly modules on Linux and run them anywhere. This approach:
 
 - Simplifies CI/CD pipelines
 - Reduces complexity and potential issues
 - Leverages Linux's excellent toolchain support
 - Produces identical WebAssembly output regardless of build platform
+- If you want to use it with Windows runners, no prob, you will just need to use it's output.
 
 ## Usage
 
@@ -36,9 +37,9 @@ WASI SDK compiles C/C++ code to WebAssembly, which is completely cross-platform.
 - name: Install WASI SDK
   uses: konsumer/install-wasi-sdk@v1
   with:
-    version: '25'
-    install-path: '/opt/wasi-sdk'
-    add-to-path: 'true'
+    version: "25"
+    install-path: "/opt/wasi-sdk"
+    add-to-path: "true"
 ```
 
 ### Complete Workflow Example
@@ -49,14 +50,10 @@ name: Build WebAssembly with WASI SDK
 on:
   push:
     branches:
-      [
-        main,
-      ]
+      - main
   pull_request:
     branches:
-      [
-        main,
-      ]
+      - main
 
 jobs:
   build:
@@ -69,19 +66,13 @@ jobs:
       - name: Install WASI SDK
         uses: konsumer/install-wasi-sdk@v1
         with:
-          version: '25'
+          version: "25"
 
       - name: Build WebAssembly module
-        run:
-          |
+        run: |
           clang hello.c -o hello.wasm
           # or using the environment variable
           $CC hello.c -o hello.wasm
-
-      - name: Test WebAssembly module
-        run:
-          |
-          wasmtime hello.wasm
 ```
 
 ## Inputs
@@ -109,19 +100,6 @@ When `add-to-path` is `true`, the action sets up the following environment varia
 - `CC`: Clang compiler with WASI sysroot configured
 - `CXX`: Clang++ compiler with WASI sysroot configured
 
-## Platform Support
-
-This action only supports Linux runners, since WebAssembly output is cross-platform:
-
-| OS      | Architecture | Support | Notes                    |
-| ------- | ------------ | ------- | ------------------------ |
-| Linux   | x86_64       | ✅      | Recommended              |
-| Linux   | arm64        | ✅      | Supported                |
-| macOS   | Any          | ❌      | Use Linux runner instead |
-| Windows | Any          | ❌      | Use Linux runner instead |
-
-**Recommendation**: Use `runs-on: ubuntu-latest` for your workflows that need WASI SDK.
-
 ## Version Support
 
 - `latest`: Automatically installs the latest available version
@@ -138,11 +116,10 @@ You can find all available versions on the [WASI SDK releases page](https://gith
   id: wasi-sdk
   uses: konsumer/install-wasi-sdk@v1
   with:
-    version: '25'
+    version: "25"
 
 - name: Show installation details
-  run:
-    |
+  run: |
     echo "WASI SDK installed at: ${{ steps.wasi-sdk.outputs.wasi-sdk-path }}"
     echo "WASI SDK version: ${{ steps.wasi-sdk.outputs.wasi-sdk-version }}"
     echo "Clang path: ${{ steps.wasi-sdk.outputs.clang-path }}"
@@ -156,14 +133,10 @@ You can find all available versions on the [WASI SDK releases page](https://gith
   uses: konsumer/install-wasi-sdk@v1
 
 - name: Build C program
-  run:
-    |
-    clang -o program.wasm program.c
+  run: clang -o program.wasm program.c
 
 - name: Build C++ program
-  run:
-    |
-    clang++ -o program.wasm program.cpp -fno-exceptions
+  run: clang++ -o program.wasm program.cpp -fno-exceptions
 ```
 
 ### Using with CMake
@@ -172,11 +145,10 @@ You can find all available versions on the [WASI SDK releases page](https://gith
 - name: Install WASI SDK
   uses: konsumer/install-wasi-sdk@v1
   with:
-    version: '25'
+    version: "25"
 
 - name: Configure CMake
-  run:
-    |
+  run: |
     cmake -B build \
       -DCMAKE_TOOLCHAIN_FILE=$WASI_SDK_PATH/share/cmake/wasi-sdk.cmake \
       -DCMAKE_BUILD_TYPE=Release
@@ -191,11 +163,9 @@ You can find all available versions on the [WASI SDK releases page](https://gith
 strategy:
   matrix:
     wasi-sdk-version:
-      [
-        '23',
-        '24',
-        '25',
-      ]
+      - 23
+      - 24
+      - 25
 
 steps:
   - name: Install WASI SDK
@@ -232,5 +202,5 @@ This project is licensed under the MIT License - see the [LICENSE](LICENSE) file
 ## Related Projects
 
 - [WASI SDK](https://github.com/WebAssembly/wasi-sdk) - The official WASI SDK
-- [wasi-libc](https://github.com/WebAssembly/wasi-libc) - WASI libc implementation
+- [wasi-libc](https://github.com/WebAssembly/wasi-libc) - WASI libc implementation uused in wasi-sdk
 - [Wasmtime](https://github.com/bytecodealliance/wasmtime) - WebAssembly runtime
