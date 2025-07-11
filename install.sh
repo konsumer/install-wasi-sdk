@@ -192,14 +192,19 @@ verify_installation() {
 }
 
 # Main execution
-log_info "Starting WASI SDK installation..."
+main() {
+    log_info "Starting WASI SDK installation..."
+    
+    local platform
+    platform=$(detect_platform)
+    log_info "Detected platform: $platform"
+    
+    install_wasi_sdk "$VERSION" "$platform" "$INSTALL_PATH"
+    add_to_path "$INSTALL_PATH"
+    verify_installation "$INSTALL_PATH"
+    
+    log_success "WASI SDK installation completed successfully!"
+}
 
-local platform
-platform=$(detect_platform)
-log_info "Detected platform: $platform"
-
-install_wasi_sdk "$VERSION" "$platform" "$INSTALL_PATH"
-add_to_path "$INSTALL_PATH"
-verify_installation "$INSTALL_PATH"
-
-log_success "WASI SDK installation completed successfully!"
+# Run main function
+main "$@" 
